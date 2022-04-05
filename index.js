@@ -11,7 +11,7 @@ const {
   rarityWeights,
 } = require("./input/config.js");
 const console = require("console");
-const canvas = createCanvas(width, height);
+const canvas = createCanvas(parseInt(width), parseInt(height));
 const ctx = canvas.getContext("2d");
 
 // saves the generated image to the output folder, using the edition count as the name
