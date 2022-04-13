@@ -9,6 +9,7 @@ const {
   editionSize,
   startEditionFrom,
   rarityWeights,
+  conflictElements
 } = require("./input/config.js");
 const console = require("console");
 const canvas = createCanvas(parseInt(width), parseInt(height));
@@ -57,6 +58,14 @@ const generateMetadata = (_dna, _edition, _attributesList) => {
   };
   return tempMetadata;
 };
+
+ // get conflict elements
+ const getConflictElements = (element) => {
+  if (conflictElements.get(element) != undefined) {
+    return conflictElements.get(element)
+  }
+  return null
+}
 
 // prepare attributes for the given element to be used as metadata
 const getAttributeForElement = (_element) => {
@@ -110,6 +119,56 @@ const isDnaUnique = (_DnaList = [], _dna = []) => {
   return foundDna == undefined ? true : false;
 };
 
+// check whether element is conflict or not
+const isElementConflict = async (_elements) => {
+  var conflicted = false
+  // Loop elements
+  for (let i = 0; i < _elements.length; i++) {
+    let element = _elements[i];
+    console.log(`Element is ${element}`)
+    let isConflict = conflictElements.has(element)
+    console.log(`Conflict? : ${isConflict}`)
+    if (isConflict) {
+      let listOfConflicts = await getConflictElements(element);
+      for (let j = 0; j < listOfConflicts.length; j++) {
+        const element = listOfConflicts[j];
+        conflicted = _elements.includes(element)
+        if (conflicted) {
+          break;
+        }
+      }
+      // listOfConflicts.map(conflict => {
+      //   let conf = _elements.includes(conflict)
+      //   if (conf) {
+      //     conflicted = conf
+      //     break;
+      //   }
+      // });
+    }
+  } 
+  return conflicted;
+  // get list of conflict elements [/]
+  // check whether have conflict element or not [/] 
+  // if have -- loop check whether conflict element is exist in the input elements or not []
+      // if have -- return 'true' []
+      // if not -- return 'false' []
+  // if not -- return 'false'[/]
+
+  // get list of conflict elements
+  
+  // for (let i = 0; i < _elements.length; i++) {
+  //   const element = _elements[i];
+  //   console.log(`Element: ${element}`)
+  //   const conflicts = await getConflictElements(element);
+  //   if (conflicts == null || conflicts.length == 0 ) {
+  //     continue;
+  //   }
+  //   console.log(`Conflict Element: ${conflicts}`)
+  // }
+  // console.log("Should return false")
+  // return false
+};
+
 const getRandomRarity = (_rarityOptions) => {
   let randomPercent = Math.random() * 100;
   let percentCount = 0;
@@ -128,6 +187,7 @@ const getRandomRarity = (_rarityOptions) => {
 // use a random part for each layer
 const createDna = (_layers, _rarity) => {
   let randNum = [];
+  let randElement = [];
   let _rarityWeight = rarityWeights.find(rw => rw.value === _rarity);
   _layers.forEach((layer) => {
     let num = Math.floor(Math.random() * layer.elementIdsForRarity[_rarity].length);
@@ -135,12 +195,14 @@ const createDna = (_layers, _rarity) => {
       // if there is a layerPercent defined, we want to identify which dna to actually use here (instead of only picking from the same rarity)
       let _rarityForLayer = getRandomRarity(_rarityWeight.layerPercent[layer.id]);
       num = Math.floor(Math.random() * layer.elementIdsForRarity[_rarityForLayer].length);
+      randElement.push(layer.elements[_rarityForLayer][num].name)
       randNum.push(layer.elementIdsForRarity[_rarityForLayer][num]);
     } else {
+      randElement.push(layer.elements[_rarity][num].name)
       randNum.push(layer.elementIdsForRarity[_rarity][num]);
     }
   });
-  return randNum;
+  return [randNum, randElement];
 };
 
 // holds which rarity should be used for which image in edition
@@ -156,6 +218,7 @@ const getRarity = (_editionCount) => {
       }
     });
   }
+  console.log(editionSize, _editionCount)
   return rarityForEdition[editionSize - _editionCount];
 };
 
@@ -197,11 +260,12 @@ const startCreating = async () => {
 
     // calculate the NFT dna by getting a random part for each layer/feature 
     // based on the ones available for the given rarity to use during generation
-    let newDna = createDna(layers, rarity);
-    while (!isDnaUnique(dnaListByRarity[rarity], newDna)) {
+    let [newDna, newElement] = createDna(layers, rarity);
+
+    while (!isDnaUnique(dnaListByRarity[rarity], newDna) || await isElementConflict(newElement)) {
       // recalculate dna as this has been used before.
-      console.log('found duplicate DNA ' + newDna.join('-') + ', recalculate...');
-      newDna = createDna(layers, rarity);
+      console.log('found duplicate DNA ' + newDna.join('-') + ' or found conflict element, recalculate...');
+      [newDna, newElement] = createDna(layers, rarity);
     }
     console.log('- dna: ' + newDna.join('-'));
 
@@ -212,6 +276,7 @@ const startCreating = async () => {
 
     // load all images to be used by canvas
     results.forEach((layer) => {
+      // console.log(layer)
       loadedElements.push(loadLayerImg(layer));
     });
 
@@ -226,6 +291,7 @@ const startCreating = async () => {
       let attributesList = [];
       // draw each layer
       elementArray.forEach((element) => {
+        // console.log(element)
         drawElement(element);
         attributesList.push(getAttributeForElement(element));
       });
@@ -238,11 +304,11 @@ const startCreating = async () => {
       console.log('- metadata: ' + JSON.stringify(nftMetadata));
       console.log('- edition ' + editionCount + ' created.');
       console.log();
+      writeMetaData(JSON.stringify(metadataList));
     });
     dnaListByRarity[rarity].push(newDna);
     editionCount++;
   }
-  writeMetaData(JSON.stringify(metadataList));
 };
 
 // Initiate code

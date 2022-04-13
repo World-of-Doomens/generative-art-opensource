@@ -84,7 +84,6 @@
      elementIdsForRarity[rarityWeight.value] = [];
      elementsForRarity.forEach((_elementForRarity) => {
        _elementForRarity.id = `${editionDnaPrefix}${elementCount}`;
-       console.log(_elementForRarity)
        elements.push(_elementForRarity);
        elementIdsForRarity[rarityWeight.value].push(_elementForRarity.id);
        elementCount++;
@@ -125,6 +124,11 @@
      console.log(`rarity ${_rarityId} not found, failed to add percentage information`);
    }
  }
+
+ // add elements 
+ const addConflictElements = (element, listOfConflicts) => {
+    conflictElements.set(element, listOfConflicts);
+ }
  
  /**************************************************************
   * BEGIN CONFIG
@@ -154,8 +158,12 @@
  let rarityWeights = [
    addRarity('super_rare', 1, 1),
    addRarity('rare', 2, 5),
-   addRarity('original', 5, 10)
+   addRarity('original', 5, 30)
  ];
+
+ const conflictElements = new Map();
+
+ // rule of components 
  
  // create required layers
  // for each layer, call 'addLayer' with the id and optionally the positioning and size
@@ -174,6 +182,11 @@
  addRarityPercentForLayer('super_rare', 'body', { 'super_rare': 33, 'rare': 33, 'original': 33 });
  addRarityPercentForLayer('super_rare', 'eye', { 'super_rare': 50, 'rare': 25, 'original': 25 });
  addRarityPercentForLayer('original', 'mouth', { 'super_rare': 50, 'rare': 25, 'original': 25 });
+
+ // add conflict elements
+ addConflictElements("grey eye ball", ["cyan big", "cyan small"])
+ addConflictElements("red eye ball", ["green big", "green small"])
+ addConflictElements("white eye ball", ["yellow big", "yellow small"])
  
  module.exports = {
    layers,
@@ -184,5 +197,6 @@
    editionSize,
    startEditionFrom,
    rarityWeights,
+   conflictElements
  };
  
