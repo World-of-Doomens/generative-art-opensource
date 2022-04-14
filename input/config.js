@@ -147,7 +147,7 @@
  // id for edition to start from
  const startEditionFrom = 1;
  // amount of NFTs to generate in edition
- const editionSize = process.env.GEN_AMOUNT || 10;
+ const editionSize = process.env.GEN_AMOUNT || 30;
  // prefix to add to edition dna ids (to distinguish dna counts from different generation processes for the same collection)
  const editionDnaPrefix = 0
  // 0 = male, 1 = female (default is 0)
@@ -156,9 +156,9 @@
  // create required weights
  // for each weight, call 'addRarity' with the id and from which to which element this rarity should be applied
  let rarityWeights = [
-   addRarity('super_rare', 1, 1),
-   addRarity('rare', 2, 5),
-   addRarity('original', 5, 30)
+   addRarity('super_rare', 1, 3),
+   addRarity('rare', 3, 10),
+   addRarity('original', 10, 30)
  ];
 
  const conflictElements = new Map();
@@ -169,24 +169,32 @@
  // for each layer, call 'addLayer' with the id and optionally the positioning and size
  // the id would be the name of the folder in your input directory, e.g. 'ball' for ./input/body
  const layers = [
-   addLayer('body', { x: 0, y: 0 }, { width: width, height: height }),
-   addLayer('eye'),
+   addLayer('background', { x: 0, y: 0 }, { width: width, height: height }),
+   addLayer('back-deco'),
+   addLayer('leg'),
+   addLayer('hand'),
+   addLayer('prop'),
+   addLayer('body'),
+   addLayer('body-deco'),
+   addLayer('head'),
+   addLayer('head-deco'),
    addLayer('face'),
-   addLayer('hair'),
-   addLayer('mouth'),
-   addLayer('other')
+   addLayer('face-deco'),
  ];
  
  // provide any specific percentages that are required for a given layer and rarity level
  // all provided options are used based on their percentage values to decide which layer to select from
- addRarityPercentForLayer('super_rare', 'body', { 'super_rare': 33, 'rare': 33, 'original': 33 });
- addRarityPercentForLayer('super_rare', 'eye', { 'super_rare': 50, 'rare': 25, 'original': 25 });
- addRarityPercentForLayer('original', 'mouth', { 'super_rare': 50, 'rare': 25, 'original': 25 });
+addRarityPercentForLayer('super_rare', 'body', { 'super_rare': 33, 'rare': 33, 'original': 33 });
+addRarityPercentForLayer('super_rare', 'eye', { 'super_rare': 50, 'rare': 25, 'original': 25 });
+addRarityPercentForLayer('original', 'mouth', { 'super_rare': 50, 'rare': 25, 'original': 25 });
 
  // add conflict elements
- addConflictElements("grey eye ball", ["cyan big", "cyan small"])
- addConflictElements("red eye ball", ["green big", "green small"])
- addConflictElements("white eye ball", ["yellow big", "yellow small"])
+addConflictElements("popcorn_layer_forcolor_v03_Small_ver_0005s_0003s_0000_dot-Copy-3", ["popcorn_layer_forcolor_v03_Small_ver_0004s_0000s_0000__Group_","popcorn_layer_forcolor_v03_Small_ver_0004s_0002s_0000_dot-Copy-2-2"])
+addConflictElements("popcorn_layer_forcolor_v03_Small_ver_0005s_0002s_0000_Layer-74-2", ["popcorn_layer_forcolor_v03_Small_ver_0004s_0002s_0000_dot-Copy-2-2"])
+addConflictElements("popcorn_layer_forcolor_v03_Small_ver_0005s_0000s_0000_Layer-228", ["popcorn_layer_forcolor_v03_Small_ver_0004s_0002s_0000_dot-Copy-2-2"])
+
+ //  addConflictElements("red eye ball", ["green big", "green small"])
+//  addConflictElements("white eye ball", ["yellow big", "yellow small"])
  
  module.exports = {
    layers,

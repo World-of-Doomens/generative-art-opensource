@@ -125,9 +125,7 @@ const isElementConflict = async (_elements) => {
   // Loop elements
   for (let i = 0; i < _elements.length; i++) {
     let element = _elements[i];
-    console.log(`Element is ${element}`)
     let isConflict = conflictElements.has(element)
-    console.log(`Conflict? : ${isConflict}`)
     if (isConflict) {
       let listOfConflicts = await getConflictElements(element);
       for (let j = 0; j < listOfConflicts.length; j++) {
@@ -137,36 +135,9 @@ const isElementConflict = async (_elements) => {
           break;
         }
       }
-      // listOfConflicts.map(conflict => {
-      //   let conf = _elements.includes(conflict)
-      //   if (conf) {
-      //     conflicted = conf
-      //     break;
-      //   }
-      // });
     }
   } 
   return conflicted;
-  // get list of conflict elements [/]
-  // check whether have conflict element or not [/] 
-  // if have -- loop check whether conflict element is exist in the input elements or not []
-      // if have -- return 'true' []
-      // if not -- return 'false' []
-  // if not -- return 'false'[/]
-
-  // get list of conflict elements
-  
-  // for (let i = 0; i < _elements.length; i++) {
-  //   const element = _elements[i];
-  //   console.log(`Element: ${element}`)
-  //   const conflicts = await getConflictElements(element);
-  //   if (conflicts == null || conflicts.length == 0 ) {
-  //     continue;
-  //   }
-  //   console.log(`Conflict Element: ${conflicts}`)
-  // }
-  // console.log("Should return false")
-  // return false
 };
 
 const getRandomRarity = (_rarityOptions) => {
